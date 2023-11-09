@@ -25,11 +25,20 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    car1.turn_right()
-                if event.key == pygame.K_LEFT:
-                    car1.turn_left()
+
+    keys_pressed = pygame.key.get_pressed()
+
+    if keys_pressed[pygame.K_LEFT]:
+        car1.turn_left()
+    if keys_pressed[pygame.K_RIGHT]:
+        car1.turn_right()
+    if keys_pressed[pygame.K_UP] or keys_pressed[pygame.K_DOWN]:
+        if keys_pressed[pygame.K_UP]:
+            car1.speed_upf()
+        if keys_pressed[pygame.K_DOWN]:
+            car1.speed_upr()
+    else:
+        car1.coast()
 
 
     clock.tick(60)  # run at 60 FPS
