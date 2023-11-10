@@ -56,6 +56,8 @@ def make_background1(screen):
     for x in range(0,WIDTH,tile_width):
         for y in range(0,HEIGHT,tile_height):
             background.blit(grass, (x,y))
+
+
     # draw track
     track_width = turn1_1.get_width()
     track_height = turn1_1.get_height()

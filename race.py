@@ -18,9 +18,18 @@ car1 = Car(screen,2)
 car1_group = pygame.sprite.Group()
 car1_group.add(car1)
 
+
 # game loop
 running = True
 while running:
+    # set max forward speed
+    MAXf = 8
+    # set max reverse speed
+    MAXr = -4
+
+
+
+
     # click to exit
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -34,15 +43,18 @@ while running:
         car1.turn_right()
     if keys_pressed[pygame.K_UP] or keys_pressed[pygame.K_DOWN]:
         if keys_pressed[pygame.K_UP]:
-            car1.speed_upf()
+            MAXf = car1.track1_grass_slow(screen, MAXf)
+            car1.speed_upf(MAXf)
         if keys_pressed[pygame.K_DOWN]:
-            car1.speed_upr()
+            MAXr = car1.track1_grass_slow(screen, MAXr)
+            car1.speed_upr(MAXr)
     else:
         car1.coast()
 
 
+
     clock.tick(60)  # run at 60 FPS
-    car1_group.update()
+    car1_group.update(screen)
     # draw the background on the screen
     screen.blit(background, (0, 0))
     car1_group.draw(screen)
