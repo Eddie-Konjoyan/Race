@@ -5,7 +5,7 @@ import background
 
 
 class Car(pygame.sprite.Sprite):
-    def __init__(self,screen,carnum):
+    def __init__(self,screen,carnum,position):
         super().__init__()
 
         scale = (40,70)
@@ -19,8 +19,12 @@ class Car(pygame.sprite.Sprite):
         self.image = self.image_o
         # create rect obj for car
         self.rect = self.image.get_rect()
-        self.rect.x = 550
-        self.rect.y = 20
+        if position == 1:
+            self.rect.x = 550
+            self.rect.y = 30
+        elif position == 2:
+            self.rect.x = 550
+            self.rect.y = 90
         self.screen = screen
 
         #initial speed
