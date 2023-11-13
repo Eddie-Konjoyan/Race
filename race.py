@@ -75,6 +75,19 @@ while running:
     else:
         car2.coast()
 
+    if (pygame.sprite.groupcollide(car1_group, car2_group, False, False)):
+        print("!")
+
+        # if cars collide, change eachothers bearings to the others
+        car2b = car2.bearing
+        car2s = car2.speed
+        car1b = car1.bearing
+        car1s = car1.speed
+        car1.bounce(car2b,car2s)
+        car2.bounce(car1b,car1s)
+
+
+
 
 
     clock.tick(60)  # run at 60 FPS

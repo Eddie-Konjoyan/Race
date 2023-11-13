@@ -12,7 +12,7 @@ class Car(pygame.sprite.Sprite):
 
         # Initialize car based on color
         if carnum ==1:
-            self.image_o = pygame.transform.scale(pygame.image.load('PNG/Cars/car_red_5.png'),scale)
+            self.image_o = pygame.transform.scale(pygame.image.load('PNG/Cars/car_black_5.png'),scale)
         if carnum ==2:
             self.image_o = pygame.transform.scale(pygame.image.load('PNG/Cars/car_blue_5.png'),scale)
         self.image_o = pygame.transform.rotate(self.image_o,-90)
@@ -59,11 +59,11 @@ class Car(pygame.sprite.Sprite):
             self.speed = 0
     def turn_left(self):
         """Turn car left 10 degrees"""
-        self.bearing += 3.5
+        self.bearing += 3
 
     def turn_right(self):
         """Turn car right 10 degrees"""
-        self.bearing -= 3.5
+        self.bearing -= 3
 
     def speed_upf(self,max):
         """Slow down or speed up"""
@@ -95,6 +95,26 @@ class Car(pygame.sprite.Sprite):
         else:
             return max
 
+    def bounce(self, bearingcar2, speedcar2):
+        vx1_initial = self.speed * math.cos(math.radians(self.bearing))
+        vy1_initial = self.speed * math.sin(math.radians(self.bearing))
+        vx2_initial = speedcar2 * math.cos(math.radians(bearingcar2))
+        vy2_initial = speedcar2 * math.sin(math.radians(bearingcar2))
+
+        # Calculate the final velocities after an elastic collision
+        vx1_final = ( 2  * vx2_initial) / (2)
+        vy1_final = ( 2  * vy2_initial) / (2)
+
+        # Calculate the final angles after the collision
+        theta1_final = math.degrees(math.atan2(vy1_final, vx1_final))
+
+
+        # Calculate the resultant velocity magnitudes
+        v1_final = math.sqrt(vx1_final ** 2 + vy1_initial ** 2)
+
+
+        self.speed = v1_final
+        self.bearing = theta1_final
 
 
 
