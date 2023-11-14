@@ -121,3 +121,5 @@ def make_background1(screen):
         background.blit(plant_tile,
                         (randint(0, WIDTH),randint(HEIGHT-3*tile_height, HEIGHT-1*tile_height))) """
     return background
+
+

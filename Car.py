@@ -97,11 +97,13 @@ class Car(pygame.sprite.Sprite):
 
     def bounce(self, xcenter2, ycenter2,bearingcar2, speedcar2):
 
-        elasticity = .3
+        elasticity = .01
         speedcar1 = self.speed
         dx = self.rect.centerx - xcenter2
         dy = self.rect.centery - ycenter2
         tangent = math.atan2(dy, dx)
+        if tangent > 150:
+            tangent = 180-tangent
         self.bearing = 2 * tangent - self.bearing
         p2angle = 2 * tangent - bearingcar2
         (speedcar1, speedcar2) = (speedcar2,speedcar1)
@@ -113,41 +115,6 @@ class Car(pygame.sprite.Sprite):
         p2x = -math.sin(angle)
         p2y = math.cos(angle)
         return p2x, p2y, p2angle
-
-        """
-        vx1_initial = self.speed * math.cos(math.radians(self.bearing))
-        vy1_initial = self.speed * math.sin(math.radians(self.bearing))
-        vx2_initial = speedcar2 * math.cos(math.radians(bearingcar2))
-        vy2_initial = speedcar2 * math.sin(math.radians(bearingcar2))
-
-        # Calculate the final velocities after an elastic collision
-        vx1_final = (vx2_initial) / (2)
-        vy1_final = (vy2_initial) / (2)
-
-        # Calculate the final angles after the collision
-        theta1_final = math.degrees(math.atan2(vy1_final, vx1_final))
-
-
-        # Calculate the resultant velocity magnitudes
-        v1_final = math.sqrt(vx1_final ** 2 + vy1_initial ** 2)
-
-
-        self.speed = v1_final
-        self.bearing = theta1_final
-        if math.sin(self.bearing)> 0:
-            self.rect.y = self.rect.y -5
-            if math.cos(self.bearing)> 0:
-                self.rect.x = self.rect.x +5
-            if math.cos(self.bearing)< 0:
-                self.rect.x = self.rect.x -5
-        if math.sin(self.bearing)< 0:
-            self.rect.y = self.rect.y +5
-            if math.cos(self.bearing)> 0:
-                self.rect.x = self.rect.x +5
-            if math.cos(self.bearing)< 0:
-                self.rect.x = self.rect.x -5
-        """
-
 
 
 
