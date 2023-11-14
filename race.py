@@ -6,6 +6,10 @@ pygame.init()
 # make a clock
 clock = pygame.time.Clock()
 
+# init font
+FONT_SIZE = 36
+FONT_COLOR = (0, 0, 0)
+font = pygame.font.Font(None, FONT_SIZE)
 # set the resolution of our game window
 WIDTH = 1440
 HEIGHT = 800
@@ -26,8 +30,35 @@ car2_group.add(car2)
 
 
 # game loop
-running = True
-while running:
+running = 1
+
+while running == 2 :
+    # click to exit
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = 0
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+                # User pressed the Enter key, exit the loop to start the game
+                running = 1
+
+    # Clear the screen
+    screen.fill((0,0,0))
+
+    # Render and display "ENTER TO CONTINUE" text
+    text_surface = font.render("PRESS ENTER TO CONTINUE", True, (255,255,255))
+    text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(text_surface, text_rect)
+
+    pygame.display.flip()
+
+# Quit Pygame
+pygame.quit()
+
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+while running == 1:
     # set max forward speed car1
     MAXf1 = 8
     # set max reverse speed car1
@@ -43,7 +74,7 @@ while running:
     # click to exit
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            running = 0
 
     keys_pressed = pygame.key.get_pressed()
     #car1 controls
@@ -74,19 +105,24 @@ while running:
             car2.speed_upr(MAXr2)
     else:
         car2.coast()
-
+    bounce = 1
     if (pygame.sprite.groupcollide(car1_group, car2_group, False, False)):
         print("!")
+        if bounce:
+            # if cars collide, change eachothers bearings to the others
+            (xdelta, ydelta, car2.bearing) = car1.bounce(car2.rect.centerx,car2.rect.centery,car2.bearing,car2.speed)
+            car2.rect.centerx += xdelta
+            car2.rect.centery += ydelta
+            bounce =0
+        else:
+            pass
 
-        # if cars collide, change eachothers bearings to the others
-        car2b = car2.bearing
-        car2s = car2.speed
-        car1b = car1.bearing
-        car1s = car1.speed
-        car1.bounce(car2b,car2s)
-        car2.bounce(car1b,car1s)
-
-
+    #lap counter
+    """ 321 countdown to start
+    if car passes start line, lap timer
+        if continue timer from 0 on new line
+    after x laps display finish times and winner
+        """
 
 
 
@@ -95,6 +131,8 @@ while running:
     car2_group.update(screen)
     # draw the background on the screen
     screen.blit(background, (0, 0))
+    #text = font.render(f"Time: {elapsed_time:.2f} seconds", True, FONT_COLOR)
+   # screen.blit(text, (10, 10))
     car1_group.draw(screen)
     car2_group.draw(screen)
     # flip() the display to put your work on screen
