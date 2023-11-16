@@ -42,8 +42,11 @@ class Car(pygame.sprite.Sprite):
         # Assign new rect with current center.
         # Keep the image in center as the rect changes size.
         self.rect = self.image.get_rect(center=self.rect.center)
-        self.rect.x += self.speed*math.cos((self.bearing*math.pi)/180)
-        self.rect.y += -self.speed*math.sin((self.bearing*math.pi)/180)
+        self.velox = self.speed*math.cos((self.bearing*math.pi)/180)
+        self.veloy = -self.speed*math.sin((self.bearing*math.pi)/180)
+        self.velo = pygame.Vector2(self.velox,self.veloy)
+        self.rect.x +=self.velo.x
+        self.rect.y += self.velo.y
 
         if self.rect.x > screen.get_width()-self.image.get_width()+10:
             self.rect.x = screen.get_width()-self.image.get_width()+10
@@ -102,8 +105,11 @@ class Car(pygame.sprite.Sprite):
         dx = self.rect.centerx - xcenter2
         dy = self.rect.centery - ycenter2
         tangent = math.atan2(dy, dx)
-        if tangent > 150:
-            tangent = 180-tangent
+        #if sin/cos tanent is within ____ then change to ___ to create wanted outcome
+        if  math.sin(tangent) >.9 and math.cos(tangent)>0:
+            tangent = 45
+        elif  math.sin(tangent) >.9 and math.cos(tangent)<0:
+            tangent = -45
         self.bearing = 2 * tangent - self.bearing
         p2angle = 2 * tangent - bearingcar2
         (speedcar1, speedcar2) = (speedcar2,speedcar1)
@@ -115,6 +121,8 @@ class Car(pygame.sprite.Sprite):
         p2x = -math.sin(angle)
         p2y = math.cos(angle)
         return p2x, p2y, p2angle
+
+
 
 
 

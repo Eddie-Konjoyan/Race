@@ -1,13 +1,15 @@
 from background import *
 from Car import Car
+from helpers import *
 import pygame
+import math
 # pygame setup
 pygame.init()
 # make a clock
 clock = pygame.time.Clock()
 
 # init font
-FONT_SIZE = 100
+FONT_SIZE = 70
 FONT_COLOR = (0, 0, 0)
 font = pygame.font.Font(None, FONT_SIZE)
 
@@ -42,6 +44,9 @@ lap_times = []
 # game loop
 running = True
 start = False
+oner = False
+twor = False
+ret = False
 
 while running:
     events = pygame.event.get()
@@ -49,20 +54,21 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
-    if start == False:
-            for event in events:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
-                        # User pressed the Enter key, exit the loop to start the game
-                        start = True
+    if start != True:
+        start = start_screen(screen, oner, twor, ret, font, WIDTH, HEIGHT)
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                 # User pressed the Enter key, exit the loop to start the game
+                    oner = True
 
-            # Clear the screen
-            screen.fill((0,0,0))
+                if event.key == pygame.K_UP:
+                    twor = True
+                if event.key == pygame.K_RETURN:
+                    ret = True
 
-            # Render and display "ENTER TO CONTINUE" text
-            text_surface = font.render("PRESS ENTER TO CONTINUE", True, (255,255,255))
-            text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-            screen.blit(text_surface, text_rect)
+
+
     else:
 
                 # set max forward speed car1
@@ -109,6 +115,7 @@ while running:
                         countdown_rect = countdown_text_render.get_rect(center=(WIDTH // 2, HEIGHT // 2))
                         screen.blit(countdown_text_render, countdown_rect)
                 if countdown_index == len(countdown_values):
+
                         if keys_pressed[pygame.K_LEFT]:
                             car1.turn_left()
                         if keys_pressed[pygame.K_RIGHT]:
@@ -148,7 +155,50 @@ while running:
                             else:
                                 pass
 
+                        """
+                        def elastic_collision(car1, car2):
+                            mass = 10
+                            relative_velocity = car2.velo - car1.velo
+                            distance_vector = pygame.Vector2(car2.rect.center) - pygame.Vector2(car1.rect.center)
+                            distance = distance_vector.length()
 
+                            normal_vector = distance_vector.normalize()
+
+                            # Elastic collision formula
+                            impulse = 2 * mass * (relative_velocity.dot(normal_vector)) / (2 * mass)
+                            car1.speed += impulse * normal_vector.magnitude()
+                            car2.speed -= impulse * normal_vector.magnitude()
+                            car1.bearing =  2 * normal_vector.as_polar()[1] -car1.bearing
+                            car2.bearing = 2*  normal_vector.as_polar()[1] -car2.bearing
+;
+                        collisions = pygame.sprite.groupcollide(car1_group,car2_group,False, False)
+                        for sprite in collisions:
+                            elastic_collision(car1,car2)
+                           
+                                # Calculate the vector from ball1 to the other sprite
+                                collision_vector = pygame.math.Vector2(car2.rect.center) - pygame.math.Vector2(
+                                    car1.rect.center)
+
+                                # Calculate the dot product to find the component of velocity along the collision vector
+                                dot_product = collision_vector.x * car1.speed* math.cos((car1.bearing*math.pi)/180)+ collision_vector.y *  car1.speed* math.sin((car1.bearing*math.pi)/180)
+                                # Adjust the velocity to eliminate the component along the collision vector
+                                car1speedx = dot_product * collision_vector.x / collision_vector.length_squared()
+                                car1speedy = dot_product * collision_vector.y / collision_vector.length_squared()
+                                car1.speed -= math.sqrt((car1speedx**2)+(car1speedy**2)) /2
+                                car2.velox +=
+                                # Calculate the vector from ball1 to the other sprite
+                            if sprite == car1:
+                                collision_vector2 = pygame.math.Vector2(car1.rect.center) - pygame.math.Vector2(
+                                    car2.rect.center)
+
+                                # Calculate the dot product to find the component of velocity along the collision vector
+                                dot_product2 = collision_vector2.x * car2.speed* math.cos((car2.bearing*math.pi)/180)+ collision_vector2.y *  car2.speed* math.sin((car2.bearing*math.pi)/180)
+
+                                # Adjust the velocity to eliminate the component along the collision vector
+                                car2speedx = dot_product2 * collision_vector2.x / collision_vector2.length_squared()
+                                car2speedy = dot_product2 * collision_vector2.y / collision_vector2.length_squared()
+                                car2.speed -= math.sqrt((car2speedx**2)+(car2speedy**2))
+                               """
 
                 clock.tick(60)  # run at 60 FPS
                 car1_group.update(screen)
