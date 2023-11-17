@@ -3,6 +3,9 @@ from Car import Car
 from helpers import *
 import pygame
 import math
+
+from startfinish import Startfinish
+
 # pygame setup
 pygame.init()
 # make a clock
@@ -20,7 +23,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Make my background once
 background = make_background1(screen)
-#Make my car1
+#Make car1
 car1 = Car(screen,2,1)
 car1_group = pygame.sprite.Group()
 car1_group.add(car1)
@@ -30,16 +33,25 @@ car2 = Car(screen, 1,2)
 car2_group = pygame.sprite.Group()
 car2_group.add(car2)
 
+# make invisible start/finish line
+startFinish = Startfinish(screen)
+startFinish_group = pygame.sprite.Group()
+startFinish_group.add(startFinish)
 
+
+#values for countdown function
 countdown_values = ["READY...",3, 2, 1, "GO!"]
 countdown_index = 0
 countdown_timer = pygame.time.get_ticks()
 countdown_interval = 1000  # 1 second
 
 # Lap timer variables
+laptimer = pygame.time.get_ticks()
 timer_running = False
-start_time = 0
-lap_times = []
+start_time = laptimer
+end_time= 0
+lap_time =0
+ltimes = [0]
 
 # game loop
 running = True
@@ -47,24 +59,27 @@ start = False
 oner = False
 twor = False
 ret = False
-
+car1lap =0
+car2lap = 0
 while running:
     events = pygame.event.get()
     # click to exit
     for event in events:
         if event.type == pygame.QUIT:
             running = False
-    if start != True:
+    if start != True: #start screen
         start = start_screen(screen, oner, twor, ret, font, WIDTH, HEIGHT)
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
-                 # User pressed the Enter key, exit the loop to start the game
+                 # User pressed the Enter key, inticator true
                     oner = True
 
                 if event.key == pygame.K_UP:
+                #user pressed the up key, indicator true
                     twor = True
                 if event.key == pygame.K_RETURN:
+                #user pressed the return key, indicator true
                     ret = True
 
 
@@ -115,7 +130,9 @@ while running:
                         countdown_rect = countdown_text_render.get_rect(center=(WIDTH // 2, HEIGHT // 2))
                         screen.blit(countdown_text_render, countdown_rect)
                 if countdown_index == len(countdown_values):
-
+                        if timer_running==False:
+                            start_time = pygame.time.get_ticks()
+                            timer_running= True
                         if keys_pressed[pygame.K_LEFT]:
                             car1.turn_left()
                         if keys_pressed[pygame.K_RIGHT]:
@@ -149,11 +166,52 @@ while running:
                                 # if cars collide, change eachothers bearings to the others
                                 (xdelta, ydelta, car2.bearing) = car1.bounce(car2.rect.centerx, car2.rect.centery,
                                                                              car2.bearing, car2.speed)
-                                car2.rect.centerx += xdelta * 3
-                                car2.rect.centery += ydelta * 3
+                                car2.rect.centerx += xdelta * 2
+                                car2.rect.centery += ydelta * 2
                                 bounce = 0
                             else:
                                 pass
+
+                        if (pygame.sprite.groupcollide(car1_group,startFinish_group, False, False)):
+                            nowtime = pygame.time.get_ticks()
+                            elapse = nowtime - start_time
+                            if car1lap < 6:
+                                if elapse >= ltimes[car1lap-1] + 5000:
+                                    ltimes.append(elapse)  # adds elapsed time to a list based off of l
+                                    print(ltimes)
+                                    if 0 < car1lap < 5:
+                                        print(f"CAR 1 passed finish {car1lap}")
+                                        car1lap +=1
+                                elif car1lap <1:
+                                    car1lap+=1
+                                    print("Car1start")
+                            elif car1lap ==6:
+                                print("Finish1")
+                                end_time=laptimer
+                                print(end_time)
+                                car1lap +=1
+                                # drive car off screen
+
+                        if (pygame.sprite.groupcollide(car2_group,startFinish_group, False, False)):
+                            nowtime = pygame.time.get_ticks()
+                            elapse = nowtime - start_time
+                            if car2lap < 6:
+                                if elapse >= ltimes[car2lap - 1] + 5000:
+                                    ltimes.append(elapse)  # adds elapsed time to a list based off of l
+                                    print(ltimes)
+                                    if 0 < car2lap < 5:
+                                        print(f"CAR 2 passed finish {car2lap}")
+                                        car2lap += 1
+                                elif car2lap < 1:
+                                    car2lap += 1
+                                    print("Car2start")
+                            elif car2lap == 6:
+                                print("Finish2")
+                                end_time = laptimer
+                                print(end_time)
+                                car2lap += 1
+                                # drive car off screen
+
 
                         """
                         def elastic_collision(car1, car2):
@@ -208,6 +266,7 @@ while running:
 
                 car1_group.draw(screen)
                 car2_group.draw(screen)
+
                 # flip() the display to put your work on screen
 
 

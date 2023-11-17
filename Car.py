@@ -48,6 +48,7 @@ class Car(pygame.sprite.Sprite):
         self.rect.x +=self.velo.x
         self.rect.y += self.velo.y
 
+        #car does not go past border of screen
         if self.rect.x > screen.get_width()-self.image.get_width()+10:
             self.rect.x = screen.get_width()-self.image.get_width()+10
             self.speed = 0
@@ -89,7 +90,7 @@ class Car(pygame.sprite.Sprite):
             self.speed -=.2
         if self.speed < max:
             self.speed = max
-    def track1_grass_slow(self, screen, max):
+    def track1_grass_slow(self, screen, max): #slows the car down when on the grass in middle of the track
         tile_size = 80
         WIDTH = screen.get_width()
         HEIGHT = screen.get_height()
@@ -98,33 +99,37 @@ class Car(pygame.sprite.Sprite):
         else:
             return max
 
-    def bounce(self, xcenter2, ycenter2,bearingcar2, speedcar2):
+    def bounce(self, xcenter2, ycenter2,bearingcar2, speedcar2): #bounce function
 
-        elasticity = .01
+        elasticity = .01 #elasticity constant
         speedcar1 = self.speed
+
+        #distance between the cars
         dx = self.rect.centerx - xcenter2
         dy = self.rect.centery - ycenter2
+
+        #tangent of the two cars collision
         tangent = math.atan2(dy, dx)
+
         #if sin/cos tanent is within ____ then change to ___ to create wanted outcome
         if  math.sin(tangent) >.9 and math.cos(tangent)>0:
             tangent = 45
         elif  math.sin(tangent) >.9 and math.cos(tangent)<0:
             tangent = -45
+
+        #physics
         self.bearing = 2 * tangent - self.bearing
         p2angle = 2 * tangent - bearingcar2
         (speedcar1, speedcar2) = (speedcar2,speedcar1)
         speedcar1 *= elasticity
         speedcar2 *= elasticity
         angle = 0.5 * math.pi + tangent
+
+        #set new angles and speeds
         self.rect.centerx += math.sin(angle)
         self.rect.centery -= math.cos(angle)
         p2x = -math.sin(angle)
         p2y = math.cos(angle)
         return p2x, p2y, p2angle
-
-
-
-
-
 
 
