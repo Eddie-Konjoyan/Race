@@ -109,17 +109,7 @@ def make_background1(screen):
     background.blit(turn3_1, (track_width, 9 * track_height))
     background.blit(turn3_3, (0, 8 * track_height))
     background.blit(turn3_inside, (track_width, 8 * track_height))
-    """   # draw sand tile
-    for x in range(0,WIDTH,tile_width):
-        background.blit(sand_tile, (x,HEIGHT-tile_height))
-    # draw sand top tile
-    for x in range(0,WIDTH,tile_width):
-        background.blit(sand_top_tile, (x,HEIGHT-2*tile_height))
-    # draw some plants!
-    num_plants = 6
-    for p in range(num_plants):
-        background.blit(plant_tile,
-                        (randint(0, WIDTH),randint(HEIGHT-3*tile_height, HEIGHT-1*tile_height))) """
+
     return background
 
 

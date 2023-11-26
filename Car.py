@@ -62,11 +62,11 @@ class Car(pygame.sprite.Sprite):
             self.rect.y = -10
             self.speed = 0
     def turn_left(self):
-        """Turn car left 10 degrees"""
+        """Turn car left 3 degrees"""
         self.bearing += 3
 
     def turn_right(self):
-        """Turn car right 10 degrees"""
+        """Turn car right 3 degrees"""
         self.bearing -= 3
 
     def speed_upf(self,max):
@@ -113,10 +113,9 @@ class Car(pygame.sprite.Sprite):
 
         #if sin/cos tanent is within ____ then change to ___ to create wanted outcome
         if  math.sin(tangent) >.9 and math.cos(tangent)>0:
-            tangent = 45
+            tangent = 30
         elif  math.sin(tangent) >.9 and math.cos(tangent)<0:
-            tangent = -45
-
+            tangent = -30
         #physics
         self.bearing = 2 * tangent - self.bearing
         p2angle = 2 * tangent - bearingcar2
