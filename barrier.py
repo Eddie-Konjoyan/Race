@@ -5,6 +5,7 @@ import background
 
 
 class Barrier(pygame.sprite.Sprite):
+    """Creates barrier sprites so that the cars cannot enter the center of the track"""
     def __init__(self, rotation,x,y):
         super().__init__()
         scale = (190, 40)
@@ -14,6 +15,7 @@ class Barrier(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 def makebarriers(screen):
+    """Creates barriers in locations on the screen and stores them to a list"""
     WIDTH = screen.get_width()
     HEIGHT = screen.get_height()
     barriers = []
@@ -34,6 +36,7 @@ def makebarriers(screen):
     barrier11 = Barrier(90, WIDTH-245, 190)
     barrier12 = Barrier(90, WIDTH-245, 420)
 
+    #append barriers to the list
     barriers.append(barrier1)
     barriers.append(barrier2)
     barriers.append(barrier3)

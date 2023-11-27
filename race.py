@@ -1,13 +1,12 @@
 from background import *
-from Car import Car
-from helpers import *
-import pygame
-import math
+from car import Car
+from menus import *
+
 
 from startfinish import Startfinish
 from startfinish import Half
 from barrier import *
-import pygame_menu
+
 
 # pygame setup
 pygame.init()
@@ -17,7 +16,7 @@ clock = pygame.time.Clock()
 # init font
 FONT_SIZE = 70
 FONT_COLOR = (0, 0, 0)
-font = pygame.font.Font(None, FONT_SIZE)
+font = pygame.font.Font("Teko-Regular.ttf", FONT_SIZE)
 
 # set the resolution of our game window
 WIDTH = 1440
@@ -41,12 +40,13 @@ startFinish = Startfinish(screen)
 startFinish_group = pygame.sprite.Group()
 startFinish_group.add(startFinish)
 
+# make barriers
 barriers = makebarriers(screen)
 barrier_group = pygame.sprite.Group()
 for barrier in barriers:
     barrier_group.add(barrier)
 
-
+# make invisible half lap line
 half = Half(screen)
 half_group = pygame.sprite.Group()
 half_group.add(half)
@@ -58,47 +58,54 @@ countdown_timer = pygame.time.get_ticks()
 countdown_interval = 1000  # 1 second
 
 # Lap timer variables
-laptimer = pygame.time.get_ticks()
 timer_running = False
-start_time = laptimer
+start_time = pygame.time.get_ticks()
 end_time1= ""
 end_time2 = ""
-lap_time =0
-ltimes1 = [0]
-ltimes2 = [0]
 
-# game loop
-restart = False
+
+#init loop variables
 loop = 0
 running = True
 start = 0
+
+#for start screen
 oner = False
 twor = False
 ret = False
+
+#for lap counter
 car1lap =0
 car1hl = 1
 car2lap = 0
 car2hl = 1
+newhs = False
 def startfunc(oner, twor, ret):
+    """Calls the start screen"""
     return start_screen(screen, oner, twor, ret, font, WIDTH, HEIGHT)
 
 
 
 def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1hl,car2hl,end_time1,end_time2,start):
+    """Main loop
+        runs while race is occuring"""
     if timer_running:
-        bounce = 1
         if (pygame.sprite.collide_mask(car1, car2)):
-            if bounce:
-                # if cars collide, change eachothers bearings to the others
+            #collision between masks of the two cars
+               # if cars collide run bounce function
                 (xdelta, ydelta, car2.bearing) = car1.bounce(car2.rect.centerx, car2.rect.centery,
                                                              car2.bearing, car2.speed)
+                #separate cars to prevent loss of control
                 car2.rect.centerx += xdelta * 2
                 car2.rect.centery += ydelta * 2
-                bounce = 0
-            else:
-                pass
+
         for barrier in barrier_group:
             if (pygame.sprite.collide_mask(car1,barrier)):
+                #if the mask of the car collides with the barrier
+
+                #for each region of car 1 colliding with the barrier(4), and both directions of travel(2) for each region (8 tot)
+                #make car parallel to the barrier in direction of travel
+                # move car 1 off barrier to ensure no getting stuck
                 if car1.rect.centerx < 190 and 190 < car1.rect.centery < HEIGHT - 190 and 0 <= math.sin(
                         (car1.bearing*math.pi)/180) <= 1:
                     car1.bearing = 90
@@ -143,6 +150,11 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
                     car1.rect.centery +=2
 
             if (pygame.sprite.collide_mask(car2,barrier)):
+                # if the mask of the car collides with the barrier
+
+                # for each region of car 2 colliding with the barrier(4), and both directions of travel(2) for each region (8 tot)
+                # make car parallel to the barrier in direction of travel
+                # move car 2 off barrier to ensure no getting stuck
                 if car2.rect.centerx< 190 and 190 < car2.rect.centery < HEIGHT - 190 and 0 <= math.sin((car2.bearing * math.pi) / 180) <= 1:
                     car2.bearing = 90
                     car2.speed = .2 * car2.speed
@@ -179,69 +191,66 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
                     car2.speed = .2 * car2.speed
                     car2.rect.centery += 2
         if (pygame.sprite.groupcollide(car1_group,half_group, False, False)):
+            #Car 1 collides with the halfway mark, increasing the halflap variable
             if car1hl == car1lap:
                 car1hl+= 1
             else:
                 pass
         if (pygame.sprite.groupcollide(car2_group,half_group, False, False)):
-
+            # Car 2 collides with the halfway mark, increasing the halflap variable
             if car2hl == car2lap:
                 car2hl+= 1
             else:
                 pass
         if (pygame.sprite.groupcollide(car1_group,startFinish_group, False, False)):
-            print("1collide")
-            nowtime1 = pygame.time.get_ticks()
-            print(f'Car1lap: {car1lap}')
-            print(f'Car1hl{car1hl}')
-            if car1lap < 5:
+            #Car 1 collides with the start line
+            if car1lap < 6:
+                #if car lap is less than 6, and the car has passed finish, increase the lap by one
                 if car1hl == car1lap+1:
-
-                    if 0 <= car1lap < 5:
-                        print("func")
+                    if 0 <= car1lap < 6:
                         car1lap += 1
-                        print(car1lap)
 
-            elif car1lap ==5:
+            elif car1lap ==6:
+                #if the car has completed 5 laps and passes finish end car1's time, increase the lap, and then kill the car
                 end_time1= str(round(((pygame.time.get_ticks()-start_time)/1000),1))
                 car1lap +=1
                 car1.kill()
 
             else:
                 pass
-            print(f'Car1l2{car1lap}')
         if (pygame.sprite.groupcollide(car2_group,startFinish_group, False, False)):
-            print("2collide")
-            nowtime2 = pygame.time.get_ticks()
-
-            if car2lap < 5:
+            #Car 2 collides with the start line
+            if car2lap < 6:
+                #if car lap is less than 6, and the car has passed finish, increase the lap by one
                 if car2hl == car2lap+1:
+                    if 0 <= car2lap < 6:
+                        car2lap += 1
 
-                    if 0 < car2lap < 5:
-                        car2lap += 1
-                    elif car2lap < 1:
-                        car2lap += 1
-            elif car2lap == 5:
+            elif car2lap == 6:
+                #if the car has completed 5 laps and passes finish end car2's time, increase the lap, and then kill the car
                 end_time2 = str(round(((pygame.time.get_ticks()-start_time)/1000),1))
                 car2lap += 1
                 car2.kill()
             else:
                 pass
-        if car1lap < 5:
+        if car1lap < 6:
+            #display timer
             time = str(round(((pygame.time.get_ticks()-start_time)/1000),1))
             timer1 = font.render(time,
                                         True,
                                         (255, 255, 255))
             text_rect3 = timer1.get_rect(center=(WIDTH // 3, HEIGHT // 2))
             screen.blit(timer1, text_rect3)
-        if car2lap < 5:
+        if car2lap < 6:
+            #display timer
             time = str(round(((pygame.time.get_ticks()-start_time)/1000),1))
             timer2 = font.render(time,
                                         True,
                                         (255, 255, 255))
             text_rect4 = timer2.get_rect(center=(WIDTH*2 // 3, HEIGHT // 2))
             screen.blit(timer2, text_rect4)
-        if 0 < car1lap < 5:
+        if 0 < car1lap < 6:
+            #display the lap number
             text_surface1 = font.render(f"P1: LAP{car1lap}",
                                                 True,
                                                 (255, 255, 255))
@@ -250,15 +259,14 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
             screen.blit(text_surface1, text_rect1)
 
         if car1lap < 1:
-
-
+            #display first lap
             text_surface1 = font.render("P1: LAP1",
                                             True,
                                             (255, 255, 255))
             text_rect1 = text_surface1.get_rect(center=(WIDTH // 3, HEIGHT // 3))
             screen.blit(text_surface1, text_rect1)
-        if car1lap >= 5:
-
+        if car1lap >= 6:
+            #display car1 as finished
             text_surface1 = font.render("P1: FINISH",
                                         True,
                                         (255, 255, 255))
@@ -269,7 +277,8 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
                                  (255, 255, 255))
             text_rect3 = timer1.get_rect(center=(WIDTH // 3, HEIGHT // 2))
             screen.blit(timer1, text_rect3)
-        if 0 < car2lap < 5:
+        if 0 < car2lap < 6:
+            #display lap
             text_surface2 = font.render(f"P2: LAP{car2lap}",
                                         True,
                                         (255, 255, 255))
@@ -278,14 +287,14 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
             screen.blit(text_surface2, text_rect2)
 
         if car2lap < 1:
-
+            #display lap 1
             text_surface2 = font.render("P2: LAP1",
                                         True,
                                         (255, 255, 255))
             text_rect2 = text_surface2.get_rect(center=(WIDTH*2 // 3, HEIGHT // 3))
             screen.blit(text_surface2, text_rect2)
-        if car2lap >= 5:
-
+        if car2lap >= 6:
+            #display finish
             text_surface2 = font.render("P2: FINISH",
                                         True,
                                         (255, 255, 255))
@@ -297,6 +306,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
             text_rect4 = timer2.get_rect(center=(WIDTH * 2 // 3, HEIGHT // 2))
             screen.blit(timer2, text_rect4)
         if end_time2 and end_time1:
+            #if both cars are finished, exit the main loop and enter the finish loop.
             start = 2
 
 
@@ -310,18 +320,43 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
     car2_group.draw(screen)
 
     return(car1lap,car2lap,car1hl,car2hl,end_time1,end_time2,start)
-    # flip() the display to put your work on screen
 
-def endfunc(restart,end_time1,end_time2):
+
+def endfunc(newhs,end_time1,end_time2):
+
+        #if car2 won check to see if new highscore (if new write to file), then display end screen
         if end_time2 < end_time1:
-            end_screen(screen, font, 2, end_time2, WIDTH, HEIGHT)
+            with open('highscore') as hs:
+                contents = hs.read()
+            if float(end_time2) < float(contents):
+                with open('highscore', 'w') as file_object:
+                    file_object.write(end_time2)
+                newhs = True
+            end_screen(newhs,screen, font, 2, end_time2, WIDTH, HEIGHT)
+
+        # if car1 won check to see if new highscore (if new write to file), then display end screen
         elif end_time1 < end_time2:
-            end_screen(screen, font, 1, end_time1, WIDTH, HEIGHT)
+            with open('highscore') as hs:
+                contents = hs.read()
+            if float(end_time1) < float(contents):
+                with open('highscore', 'w') as file_object:
+                    file_object.write(end_time1)
+                newhs = True
+            end_screen(newhs,screen, font, 1, end_time1, WIDTH, HEIGHT)
+
+        # if tie check to see if new highscore (if new write to file), then display end screen for a tie
         else:
-            end_screen_tie(screen, font, WIDTH, HEIGHT)
+            with open('highscore') as hs:
+                contents = hs.read()
+            if float(end_time1) < float(contents):
+                with open('highscore', 'w') as file_object:
+                    file_object.write(end_time1)
+                newhs = True
+            end_screen_tie(newhs,screen,end_time1, font, WIDTH, HEIGHT)
 
 
 
+#Main game running loop
 while running:
 
     events = []
@@ -365,26 +400,7 @@ while running:
 
         # car1 controls
 
-        """"DOESNT WORK ON RERUN
-        -
-        -
-        -
-        -
-        -
-        -
-        -
-        -
-        -
-        -
-        --
-        -
-        -
-        -
-        -
-        -
-        -
-        -
-        """
+
 
         screen.blit(background, (0, 0))
         if not timer_running and countdown_index < len(countdown_values):
@@ -393,13 +409,14 @@ while running:
             if current_time - countdown_timer >= countdown_interval:
                 countdown_timer = current_time
                 countdown_index += 1
-
+            #displays coundown
             if countdown_index < len(countdown_values):
                 countdown_text = str(countdown_values[countdown_index])
                 countdown_text_render = font.render(countdown_text, True, (255, 0, 0))
                 countdown_rect = countdown_text_render.get_rect(center=(WIDTH // 2, HEIGHT // 2))
                 screen.blit(countdown_text_render, countdown_rect)
         if countdown_index == len(countdown_values):
+            #starts race
             if timer_running == False:
                 start_time = pygame.time.get_ticks()
                 timer_running = True
@@ -409,9 +426,11 @@ while running:
                 car1.turn_right()
             if keys_pressed[pygame.K_UP] or keys_pressed[pygame.K_DOWN]:
                 if keys_pressed[pygame.K_UP]:
+                    #speed up to the max speed dertermined by if on grass or not
                     MAXf1 = car1.track1_grass_slow(screen, MAXf1)
                     car1.speed_upf(MAXf1)
                 if keys_pressed[pygame.K_DOWN]:
+                    # speed up to the max speed dertermined by if on grass or not
                     MAXr1 = car1.track1_grass_slow(screen, MAXr1)
                     car1.speed_upr(MAXr1)
             else:
@@ -423,22 +442,25 @@ while running:
                 car2.turn_right()
             if keys_pressed[pygame.K_w] or keys_pressed[pygame.K_s]:
                 if keys_pressed[pygame.K_w]:
+                    # speed up to the max speed dertermined by if on grass or not
                     MAXf2 = car2.track1_grass_slow(screen, MAXf2)
                     car2.speed_upf(MAXf2)
                 if keys_pressed[pygame.K_s]:
+                    # speed up to the max speed dertermined by if on grass or not
                     MAXr2 = car2.track1_grass_slow(screen, MAXr2)
                     car2.speed_upr(MAXr2)
             else:
                 car2.coast()
-
+        #run main loop code
         car1lap,car2lap,car1hl,car2hl, end_time1,end_time2,start = mainloop(countdown_index, countdown_timer, timer_running, car1lap, car2lap, car1hl, car2hl, end_time1,
                  end_time2,start)
         print(f"Main loop lap1: {car1lap}")
 
     elif start == 2:
-        endfunc(restart, end_time1, end_time2)
+        #run endfunc code
+        endfunc(newhs, end_time1, end_time2)
 
-
+    # flip() the display to put your work on screen
     pygame.display.flip()
 
 pygame.quit()

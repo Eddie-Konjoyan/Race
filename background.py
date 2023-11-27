@@ -1,21 +1,12 @@
 import pygame
-from random import randint
-
-# this function will take 2 surface and center the 2nd surface on the first one
-def center_surfaces(bg, fg):
-    # get the bg width and height
-    bg_width = bg.get_width()
-    bg_height = bg.get_height()
-    # get the front surface width and height
-    fg_width = fg.get_width()
-    fg_height = fg.get_height()
-    # blit the text on the surface
-    bg.blit(fg, (bg_width/2 - fg_width/2, bg_height/2-fg_height/2 ))
 
 def make_background1(screen):
+    """creates a background out of tiles"""
     scale = (80,80)
     WIDTH = screen.get_width()
     HEIGHT = screen.get_height()
+
+    #load all images
     top_horizontal = pygame.transform.scale(pygame.image.load('PNG/Tiles/Asphalt road/road_asphalt04.png'),scale)
     bottom_horizontal = pygame.transform.scale(pygame.image.load('PNG/Tiles/Asphalt road/road_asphalt40.png'),scale)
     left_vert = pygame.transform.scale(pygame.image.load('PNG/Tiles/Asphalt road/road_asphalt21.png'),scale)
@@ -110,6 +101,7 @@ def make_background1(screen):
     background.blit(turn3_3, (0, 8 * track_height))
     background.blit(turn3_inside, (track_width, 8 * track_height))
 
+#return the created background surface
     return background
 
 
