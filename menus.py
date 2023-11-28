@@ -16,21 +16,25 @@ def start_screen(screen, oner, twor, ret, font, WIDTH, HEIGHT):
         #if player one ready
         screen.fill((0, 0, 0))
         text_surface2 = font.render("PLAYER1 READY    Player2: [UP ARROW] to ready", True, (255, 255, 255))
+        text_rect2 = text_surface2.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_surface2, text_rect2)
         return 0
     if oner == False and twor == True:
         #if player two ready
         screen.fill((0, 0, 0))
         text_surface2 = font.render("Player1: [W] to ready    PLAYER2 READY", True, (255, 255, 255))
+        text_rect2 = text_surface2.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_surface2, text_rect2)
         return 0
     if oner and twor and not ret:
         # if both players are ready and enter has not been hit
         screen.fill((0, 0, 0))
-        text_surface2 = font.render("PLAYER1 READY   PLAYER2 READY", True, (255, 255, 255))
+        text_surface2 = font.render("PLAYER1 READY           PLAYER2 READY", True, (255, 255, 255))
+        text_rect2 = text_surface2.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_surface2, text_rect2)
         # Render and display enter to start  text
         text_surface = font.render("[ENTER] to start.", True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 3))
         screen.blit(text_surface, text_rect)
         return 0
     if oner and twor and ret:

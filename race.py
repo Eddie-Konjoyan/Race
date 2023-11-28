@@ -1,3 +1,5 @@
+import pygame.time
+
 from background import *
 from car import Car
 from menus import *
@@ -15,9 +17,10 @@ clock = pygame.time.Clock()
 
 # init font
 FONT_SIZE = 70
-FONT_COLOR = (0, 0, 0)
-font = pygame.font.Font("Teko-Regular.ttf", FONT_SIZE)
 
+
+font = pygame.font.Font("Teko-Regular.ttf", FONT_SIZE)
+countdown = pygame.font.Font("Teko-Regular.ttf", 150)
 # set the resolution of our game window
 WIDTH = 1440
 HEIGHT = 800
@@ -80,24 +83,35 @@ car1hl = 1
 car2lap = 0
 car2hl = 1
 newhs = False
+
+#kill cars?
+kill1 = False
+kill2 = False
+
+#bounce timer (only certian number of bounces per time frame
+bounce_t = pygame.time.get_ticks()
 def startfunc(oner, twor, ret):
     """Calls the start screen"""
     return start_screen(screen, oner, twor, ret, font, WIDTH, HEIGHT)
 
 
 
-def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1hl,car2hl,end_time1,end_time2,start):
+def mainloop(bounce_t,kill1,kill2,countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1hl,car2hl,end_time1,end_time2,start):
     """Main loop
         runs while race is occuring"""
     if timer_running:
-        if (pygame.sprite.collide_mask(car1, car2)):
-            #collision between masks of the two cars
-               # if cars collide run bounce function
-                (xdelta, ydelta, car2.bearing) = car1.bounce(car2.rect.centerx, car2.rect.centery,
-                                                             car2.bearing, car2.speed)
-                #separate cars to prevent loss of control
-                car2.rect.centerx += xdelta * 2
-                car2.rect.centery += ydelta * 2
+        if kill1 == False and kill2 == False:
+            if (pygame.sprite.collide_mask(car1, car2)):
+                bounce_tn = pygame.time.get_ticks()
+                if bounce_tn>bounce_t+150:
+                    bounce_t=bounce_tn
+                  #collision between masks of the two cars
+                   # if cars collide run bounce function
+                    (xdelta, ydelta, car2.bearing) = car1.bounce(car2.rect.centerx, car2.rect.centery,
+                                                                 car2.bearing, car2.speed)
+                    #separate cars to prevent loss of control
+                    car2.rect.centerx += xdelta * 2
+                    car2.rect.centery += ydelta * 2
 
         for barrier in barrier_group:
             if (pygame.sprite.collide_mask(car1,barrier)):
@@ -214,7 +228,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
                 #if the car has completed 5 laps and passes finish end car1's time, increase the lap, and then kill the car
                 end_time1= str(round(((pygame.time.get_ticks()-start_time)/1000),1))
                 car1lap +=1
-                car1.kill()
+                kill1 = True
 
             else:
                 pass
@@ -230,7 +244,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
                 #if the car has completed 5 laps and passes finish end car2's time, increase the lap, and then kill the car
                 end_time2 = str(round(((pygame.time.get_ticks()-start_time)/1000),1))
                 car2lap += 1
-                car2.kill()
+                kill2 = True
             else:
                 pass
         if car1lap < 6:
@@ -251,7 +265,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
             screen.blit(timer2, text_rect4)
         if 0 < car1lap < 6:
             #display the lap number
-            text_surface1 = font.render(f"P1: LAP{car1lap}",
+            text_surface1 = font.render(f"P1: LAP {car1lap}/5",
                                                 True,
                                                 (255, 255, 255))
 
@@ -260,7 +274,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
 
         if car1lap < 1:
             #display first lap
-            text_surface1 = font.render("P1: LAP1",
+            text_surface1 = font.render("P1: LAP 1/5",
                                             True,
                                             (255, 255, 255))
             text_rect1 = text_surface1.get_rect(center=(WIDTH // 3, HEIGHT // 3))
@@ -279,7 +293,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
             screen.blit(timer1, text_rect3)
         if 0 < car2lap < 6:
             #display lap
-            text_surface2 = font.render(f"P2: LAP{car2lap}",
+            text_surface2 = font.render(f"P2: LAP {car2lap}/5",
                                         True,
                                         (255, 255, 255))
 
@@ -288,7 +302,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
 
         if car2lap < 1:
             #display lap 1
-            text_surface2 = font.render("P2: LAP1",
+            text_surface2 = font.render("P2: LAP 1/5",
                                         True,
                                         (255, 255, 255))
             text_rect2 = text_surface2.get_rect(center=(WIDTH*2 // 3, HEIGHT // 3))
@@ -319,7 +333,7 @@ def mainloop(countdown_index,countdown_timer,timer_running,car1lap,car2lap,car1h
     car1_group.draw(screen)
     car2_group.draw(screen)
 
-    return(car1lap,car2lap,car1hl,car2hl,end_time1,end_time2,start)
+    return(bounce_t,car1lap,car2lap,car1hl,car2hl,end_time1,end_time2,start,kill1,kill2)
 
 
 def endfunc(newhs,end_time1,end_time2):
@@ -382,6 +396,10 @@ while running:
                     ret = True
 
     elif start == 1 :
+        if kill1:
+            car1.kill()
+        if kill2:
+            car2.kill()
         keys_pressed = pygame.key.get_pressed()
         if keys_pressed[pygame.K_SPACE]:
             if not timer_running:
@@ -412,7 +430,7 @@ while running:
             #displays coundown
             if countdown_index < len(countdown_values):
                 countdown_text = str(countdown_values[countdown_index])
-                countdown_text_render = font.render(countdown_text, True, (255, 0, 0))
+                countdown_text_render = countdown.render(countdown_text, True, (255, 255,255))
                 countdown_rect = countdown_text_render.get_rect(center=(WIDTH // 2, HEIGHT // 2))
                 screen.blit(countdown_text_render, countdown_rect)
         if countdown_index == len(countdown_values):
@@ -452,9 +470,7 @@ while running:
             else:
                 car2.coast()
         #run main loop code
-        car1lap,car2lap,car1hl,car2hl, end_time1,end_time2,start = mainloop(countdown_index, countdown_timer, timer_running, car1lap, car2lap, car1hl, car2hl, end_time1,
-                 end_time2,start)
-        print(f"Main loop lap1: {car1lap}")
+        bounce_t,car1lap, car2lap,car1hl,car2hl, end_time1,end_time2,start,kill1,kill2 = mainloop(bounce_t,kill1,kill2,countdown_index, countdown_timer, timer_running, car1lap, car2lap, car1hl, car2hl, end_time1,end_time2,start)
 
     elif start == 2:
         #run endfunc code
