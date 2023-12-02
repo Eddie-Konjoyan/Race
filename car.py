@@ -21,7 +21,8 @@ class Car(pygame.sprite.Sprite):
         self.image = self.image_o
         # create rect obj for car
         self.rect = self.image.get_rect()
-
+        self.velox = 0
+        self.veloy = 0
         #init starting spot based off of given position (player 1 and 2)
         if position == 1:
             self.rect.x = 550
@@ -48,8 +49,7 @@ class Car(pygame.sprite.Sprite):
         # Keep the image in center as the rect changes size.
         self.rect = self.image.get_rect(center=self.rect.center)
         #set velocity based on speed and given bearing
-        self.velox = self.speed*math.cos((self.bearing*math.pi)/180)
-        self.veloy = -self.speed*math.sin((self.bearing*math.pi)/180)
+
         #create velo vector2 (used for car on car collision pysics)
         self.velo = pygame.Vector2(self.velox,self.veloy)
         self.rect.x +=self.velo.x
@@ -71,10 +71,14 @@ class Car(pygame.sprite.Sprite):
     def turn_left(self):
         """Turn car left 3 degrees"""
         self.bearing += 3
+        self.velox = self.speed * math.cos((self.bearing * math.pi) / 180)
+        self.veloy = -self.speed * math.sin((self.bearing * math.pi) / 180)
 
     def turn_right(self):
         """Turn car right 3 degrees"""
         self.bearing -= 3
+        self.velox = self.speed * math.cos((self.bearing * math.pi) / 180)
+        self.veloy = -self.speed * math.sin((self.bearing * math.pi) / 180)
 
     def speed_upf(self,max):
         """Slow down or speed up"""
@@ -83,6 +87,8 @@ class Car(pygame.sprite.Sprite):
             self.speed += .2
         if self.speed > max:
             self.speed = max
+        self.velox = self.speed * math.cos((self.bearing * math.pi) / 180)
+        self.veloy = -self.speed * math.sin((self.bearing * math.pi) / 180)
     def coast(self):
         """Slow down or speed up"""
         #if speed is positive, slow down at a rate of .1 per loop until speed is 0
@@ -93,6 +99,8 @@ class Car(pygame.sprite.Sprite):
             self.speed += .2
         if self.speed == 0:
             self.speed =0
+        self.velox = self.speed * math.cos((self.bearing * math.pi) / 180)
+        self.veloy = -self.speed * math.sin((self.bearing * math.pi) / 180)
 
     def speed_upr(self,max):
         """Slow down or speed up"""
@@ -101,6 +109,8 @@ class Car(pygame.sprite.Sprite):
             self.speed -=.2
         if self.speed < max:
             self.speed = max
+        self.velox = self.speed * math.cos((self.bearing * math.pi) / 180)
+        self.veloy = -self.speed * math.sin((self.bearing * math.pi) / 180)
     def track1_grass_slow(self, screen, max):
         """slows the car's max speed down by half when on the grass in middle of the track"""
         tile_size = 80
@@ -111,9 +121,11 @@ class Car(pygame.sprite.Sprite):
         else:
             return max
 
-    def bounce(self, xcenter2, ycenter2,bearingcar2, speedcar2): #bounce function
+    def roll_back(self, speedf, speedback):
+        pass
+    def bounce(self, xcenter2, ycenter2,bearingcar2, speedcar2, car2velox,car2veloy): #bounce function
         """Contains bounce physics for car on car collisions"""
-        elasticity = 5 #elasticity constant
+        elasticity = .5 #elasticity constant
         speedcar1 = self.speed
 
         #distance between the cars
@@ -124,24 +136,31 @@ class Car(pygame.sprite.Sprite):
         tangent = math.atan2(dy, dx)
 
         #if sin/cos tanent is within ____ then change to ___ to create wanted outcome
-        if  math.sin(tangent) >.9 and math.cos(tangent)>0:
-            tangent = 30
-        if  math.sin(tangent) >.9 and math.cos(tangent)<0:
-            tangent = -30
+
 
         #physics
-        self.bearing = 2 * tangent - self.bearing
-        p2angle = 2 * tangent - bearingcar2
-        (speedcar1, speedcar2) = (speedcar2,speedcar1)
-        speedcar1 *= elasticity
-        speedcar2 *= elasticity
+        #self.bearing =  2*tangent - self.bearing
+
+        #p2angle = 2*tangent - bearingcar2
+        p2angle = bearingcar2
+
+        (self.velox,self.veloy, car2velox,car2veloy) = (car2velox,car2veloy,self.velox,self.veloy)
+        self.velox = self.velox *elasticity
+        self.veloy = self.veloy * elasticity
+        car2velox = car2velox * elasticity
+        car2veloy = car2veloy * elasticity
         angle = 0.5 * math.pi + tangent
+        self.speed = speedcar1
+
 
         #set new angles and speeds
         self.rect.centerx += math.sin(angle)
         self.rect.centery -= math.cos(angle)
         p2x = -math.sin(angle)
         p2y = math.cos(angle)
-        return p2x, p2y, p2angle
+        return p2x, p2y, speedcar2, p2angle, car2velox,car2veloy
+    def collideb(self, speed, bearing):
+        pass
+
 
 

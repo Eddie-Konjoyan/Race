@@ -103,12 +103,12 @@ def mainloop(bounce_t,kill1,kill2,countdown_index,countdown_timer,timer_running,
         if kill1 == False and kill2 == False:
             if (pygame.sprite.collide_mask(car1, car2)):
                 bounce_tn = pygame.time.get_ticks()
-                if bounce_tn>bounce_t+150:
+                if bounce_tn>bounce_t:
                     bounce_t=bounce_tn
                   #collision between masks of the two cars
                    # if cars collide run bounce function
-                    (xdelta, ydelta, car2.bearing) = car1.bounce(car2.rect.centerx, car2.rect.centery,
-                                                                 car2.bearing, car2.speed)
+                    (xdelta, ydelta, car2.speed,car2.bearing, car2.velox,car2.veloy) = car1.bounce(car2.rect.centerx, car2.rect.centery,
+                                                                 car2.bearing, car2.speed,car2.velox,car2.veloy)
                     #separate cars to prevent loss of control
                     car2.rect.centerx += xdelta * 2
                     car2.rect.centery += ydelta * 2
