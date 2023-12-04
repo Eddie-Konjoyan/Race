@@ -4,7 +4,8 @@
 - Player 2 : [W][A][S][D]
 - Player 1 : [<][>][^][Down arrow]
 - Highscore is tracked between games.
-To restart, rerun the code
+  
+To restart, rerun the code.
 Hitting the edges, and barriers will collide with your car.  The grass slows your car down.  
 
 HAVE FUN RACING!
